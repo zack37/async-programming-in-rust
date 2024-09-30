@@ -23,7 +23,13 @@ pub fn syscall(message: String) -> io::Result<()> {
 #[link(name = "kernel32")]
 extern "system" {
     fn GetStdHandler(nStdHandle: i32) -> i32;
-    fn WriteConsoleW(hConsoleOutput: i32, lpBuffer: *const u16, numberOfCharsToWrite: u32, lpNumberOfCharsWritten: *mut u32, lpReserved: *const std::ffi::c_void) -> i32;
+    fn WriteConsoleW(
+        hConsoleOutput: i32,
+        lpBuffer: *const u16,
+        numberOfCharsToWrite: u32,
+        lpNumberOfCharsWritten: *mut u32,
+        lpReserved: *const std::ffi::c_void,
+    ) -> i32;
 }
 
 #[cfg(target_family = "windows")]
@@ -37,9 +43,7 @@ pub fn syscall(message: String) -> io::Result<()> {
     if handle == -1 {
         return Err(io::Error::last_os_error());
     }
-    let res = unsafe {
-        WriteConsoleW(handle,msg_ptr, len, &mut output, std::ptr::null())
-    };
+    let res = unsafe { WriteConsoleW(handle, msg_ptr, len, &mut output, std::ptr::null()) };
     if res == 0 {
         return Err(io::Error::last_os_error());
     }
